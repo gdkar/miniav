@@ -2,6 +2,7 @@ _Pragma("once")
 
 #include "tinycommon.hpp"
 
+namespace tinyav{
 struct defer_frame_t { };
 constexpr const defer_frame_t defer_frame{};
 struct avframe {
@@ -389,6 +390,7 @@ struct avframe {
         return cap / stride();
     }
 };
-inline void swap(avframe &lhs, avframe &rhs){ lhs.swap(rhs);}
-inline avframe::iterator begin(avframe &x) { return x.begin();}
-inline avframe::iterator end(avframe &x) { return x.end();}
+};
+inline void swap(tinyav::avframe &lhs, tinyav::avframe &rhs){ lhs.swap(rhs);}
+inline tinyav::avframe::iterator begin(tinyav::avframe &x) { return x.begin();}
+inline tinyav::avframe::iterator end(tinyav::avframe &x) { return x.end();}

@@ -1,7 +1,7 @@
 _Pragma("once")
 
 #include "tinycommon.hpp"
-
+namespace tinyav {
 struct avcodec_ctx {
     AVCodecContext     *m_d{nullptr};
     avcodec_ctx() = default;
@@ -90,5 +90,5 @@ struct avcodec_ctx {
         return avcodec_receive_frame(m_d,frame);
     }
 };
-
-inline void swap(avcodec_ctx &lhs, avcodec_ctx &rhs){ lhs.swap(rhs);}
+}
+inline void swap(tinyav::avcodec_ctx &lhs, tinyav::avcodec_ctx &rhs){ lhs.swap(rhs);}

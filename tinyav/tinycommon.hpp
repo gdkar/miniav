@@ -33,3 +33,12 @@ extern "C" {
 #include <unordered_map>
 #include <array>
 #include <map>
+
+namespace tinyav {
+    inline std::string tinyav_strerror(int err)
+    {
+        char str[128];
+        va_strerror(err,str,sizeof(str));
+        return std::string(str);
+    }
+};
