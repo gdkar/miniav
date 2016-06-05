@@ -1,6 +1,6 @@
 _Pragma("once")
 
-#include "ffcommon.hpp"
+#include "tinycommon.hpp"
 #include "avframe.hpp"
 
 struct sample_buf {

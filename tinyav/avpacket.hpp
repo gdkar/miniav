@@ -1,6 +1,6 @@
 _Pragma("once")
 
-#include "ffcommon.h"
+#include "tinycommon.h"
 
 struct avpacket {
     AVPacket     *m_d{nullptr};

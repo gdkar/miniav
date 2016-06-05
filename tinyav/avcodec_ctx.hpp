@@ -1,6 +1,6 @@
 _Pragma("once")
 
-#include "ffcommon.hpp"
+#include "tinycommon.hpp"
 
 struct avcodec_ctx {
     AVCodecContext     *m_d{nullptr};
