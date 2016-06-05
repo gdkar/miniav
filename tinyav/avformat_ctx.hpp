@@ -37,7 +37,10 @@ namespace tinyav {
         AVFormatContext *operator ->() const { return m_d;}
         AVFormatContext &operator *() { return *m_d;}
         const AVFormatContext &operator *() const { return *m_d;}
-        int open_input(const char *filename, AVInputFormat *fmt = nullptr, AVDictionary **opts = nullptr) { return avformat_open_input(&m_d, filename, fmt, opts);}
+        int open_input(const char *filename, AVInputFormat *fmt = nullptr, AVDictionary **opts = nullptr)
+        {
+            return avformat_open_input(&m_d, filename, fmt, opts)
+        }
         void close() { avformat_close_input(&m_d);}
         operator bool() const { return !!m_d;}
         operator AVFormatContext *() const { return m_d;}
