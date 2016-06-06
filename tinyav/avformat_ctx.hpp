@@ -3,7 +3,8 @@ _Pragma("once")
 #include "tinycommon.h"
 
 namespace tinyav {
-    struct avformat_ctx {
+    class avformat_ctx {
+    public:
         AVFormatContext     *m_d{nullptr};
         avformat_ctx() = default;
         avformat_ctx(AVFormatContext *f)
@@ -23,7 +24,14 @@ namespace tinyav {
             return *this;
         }
         avformat_ctx &operator = (const avformat_ctx &o) = delete;
-        void swap(avformat_ctx &o) { std::swap(m_d,o.m_d);}
+       ~avformat_ctx()
+       {
+           close();
+       }
+        void swap(avformat_ctx &o)
+        {
+            std::swap(m_d,o.m_d);
+        }
         void reset(AVFormatContext *f = nullptr)
         {
             if(f != m_d)
@@ -32,19 +40,42 @@ namespace tinyav {
         }
         AVFormatContext *release() { auto ret = m_d; m_d = nullptr; return ret;}
         AVFormatContext *get() const { return m_d;}
-    ~avformat_ctx() { close();}
         AVFormatContext *operator ->() { return m_d; }
         AVFormatContext *operator ->() const { return m_d;}
         AVFormatContext &operator *() { return *m_d;}
         const AVFormatContext &operator *() const { return *m_d;}
+        int open_output(const char *filename, AVOutputFormat *fmt = nullptr, const char *fmt_name = nullptr)
+        {
+            return avformat_alloc_output_context2(&m_d,fmt,fmt_name,filename);
+        }
         int open_input(const char *filename, AVInputFormat *fmt = nullptr, AVDictionary **opts = nullptr)
         {
             return avformat_open_input(&m_d, filename, fmt, opts)
         }
-        void close() { avformat_close_input(&m_d);}
+        bool is_input() const
+        {
+            return m_d && !!m_d->iformat;
+        }
+        bool is_output() const
+        {
+            return m_d && !!m_d->oformat;
+        }
+        void close()
+        {
+            if(is_input())
+                avformat_close_input(&m_d);
+            if(is_output()) {
+                avformat_free_context(m_d);
+                m_d = nullptr;
+            }
+        }
         operator bool() const { return !!m_d;}
         operator AVFormatContext *() const { return m_d;}
-        void alloc() { if(!m_d) m_d = avformat_alloc_context();}
+        void alloc()
+        {
+            if(!m_d)
+                m_d = avformat_alloc_context();
+        }
         void opt_set_int(const char *name, int val){ av_opt_set_int(m_d, name, val,0);}
         void opt_set_sample_fmt(const char *name, AVSampleFormat val){ av_opt_set_sample_fmt(m_d, name, val,0);}
         void opt_set_channel_layout(const char *name, int64_t val){ av_opt_set_channel_layout(m_d, name, val,0);}

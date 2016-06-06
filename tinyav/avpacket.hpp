@@ -2,7 +2,7 @@ _Pragma("once")
 
 #include "tinycommon.h"
 
-namespace tinyav{G
+namespace tinyav{
     struct avpacket {
         AVPacket     *m_d{nullptr};
         avpacket() = default;
