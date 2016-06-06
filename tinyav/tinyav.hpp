@@ -1,8 +1,10 @@
 _Pragma("once")
 
-#include "avframe.h"
-#include "avpacket.h"
-#include "avsample.h"
-#include "avformat_ctx.h"
-#include "avcodec_ctx.h"
-#include "swr_ctx.h"
+#include "tinycommon.hpp"
+#include "avframe.hpp"
+#include "avpacket.hpp"
+#include "avsample.hpp"
+#include "avformat_ctx.hpp"
+#include "avcodec_ctx.hpp"
+#include "swr_ctx.hpp"
+#include "avstream.hpp"
