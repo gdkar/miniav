@@ -1,6 +1,6 @@
 _Pragma("once")
 
-#include "tinycommon.h"
+#include "tinycommon.hpp"
 
 namespace tinyav{
     struct avpacket {
