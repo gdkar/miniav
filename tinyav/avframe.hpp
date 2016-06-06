@@ -32,118 +32,6 @@ struct avframe {
             return (_planes==1) ? _data[ch][_sample * _stride    ]
                                 : _data[0][_sample * _stride + ch];
         }
-        struct iterator : public std::iterator<std::bidirectional_iterator_tag, float> {
-            ItemRef * _ref{nullptr};
-            int16_t   _idx{0};
-            constexpr iterator() = default;
-            constexpr iterator(ItemRef *ref, int16_t idx)
-                :_ref(ref),_idx(idx){}
-            constexpr float &operator *() { return (*_ref)[_idx];}
-            constexpr float *operator->() { return &(*_ref)[_idx];}
-            constexpr bool operator !=(const iterator &o) const
-            {
-                return o._idx != _idx || o._ref->_data != _ref->_data || o._ref->_sample != _ref->_sample;
-            }
-            constexpr bool operator ==(const iterator &o) const
-            {
-                return !(*this == o);
-            }
-
-            inline iterator&operator++() { ++_idx;return *this;}
-            inline iterator&operator--() { --_idx;return *this;}
-            inline iterator operator++(int) { auto ret = *this;++(*this);return ret;}
-            inline iterator operator--(int) { auto ret = *this;--(*this);return ret;}
-        };
-        iterator begin() { return iterator(this,0);}
-        iterator end()   { return iterator(this, _planes);}
-    };
-    struct iterator : public std::iterator<std::bidirectional_iterator_tag, ItemRef> {
-        ItemRef   _ref{};
-        int       _len{0};
-        constexpr iterator() = default;
-        iterator(const avframe &frm, int sample = 0)
-            : _ref(frm,sample)
-            , _len(frm.samples()) { }
-        constexpr iterator(const iterator &o) = default;
-        constexpr iterator(iterator &&) = default;
-        inline iterator &operator = (const iterator &o) = default;
-        inline iterator &operator = (iterator &&) = default;
-        inline iterator &operator ++()
-        {
-            ++_ref._sample;
-            return *this;
-        }
-        inline iterator operator ++(int)
-        {
-            auto ret = *this; ++(*this); return ret;
-        }
-        inline bool operator ==(const iterator &o) const
-        {
-            return o._ref._data == _ref._data && o._ref._sample == _ref._sample;
-        }
-        inline bool operator !=(const iterator &o) const
-        {
-            return !(*this == o);
-        }
-        inline bool operator < (const iterator &o) const
-        {
-            return (_ref._data == o._ref._data) ? (_ref._sample < o._ref._sample)
-                : (_ref._data < o._ref._data);
-        }
-        inline bool operator <= (const iterator &o) const
-        {
-            return (_ref._data == o._ref._data) ? (_ref._sample <= o._ref._sample)
-                : (_ref._data < o._ref._data);
-        }
-        inline bool operator >(const iterator &o) const
-        {
-            return !(o <= *this);
-        }
-        inline bool operator >= (const iterator &o) const
-        {
-            return !(o < *this);
-        }
-        inline iterator &operator +=(std::ptrdiff_t  inc)
-        {
-            _ref._sample += inc;
-            return *this;
-        }
-        inline iterator &operator --()
-        {
-            --_ref._sample;
-            return *this;
-        }
-        inline iterator operator --(int)
-        {
-            auto ret = *this; --(*this); return ret;
-        }
-        inline iterator &operator -=(std::ptrdiff_t inc)
-        {
-            _ref._sample -= inc;
-            return *this;
-        }
-        inline iterator operator + (std::ptrdiff_t inc) const
-        {
-            auto ret = *this;
-            ret += inc;
-            return ret;
-        }
-        inline iterator operator - (std::ptrdiff_t inc) const
-        {
-            auto ret = *this;
-            ret += -inc;
-            return ret;
-        }
-        inline std::ptrdiff_t operator - ( const iterator &o) const
-        {
-            return _ref._sample - o._ref._sample;
-        }
-        inline friend std::ptrdiff_t  operator -(const iterator &l, const iterator &r)
-        {
-            return l._ref._sample - r._ref._sample;
-        }
-        inline float &operator[](int ch)       { return _ref[ch];}
-        inline float  operator[](int ch) const { return _ref[ch];}
     };
     AVFrame     *m_d{nullptr};
     avframe(const defer_frame_t &)
@@ -256,8 +144,6 @@ struct avframe {
     {
         return planar() ? data()[0][ c + s * channels()] : data()[c][s];
     }
-    inline iterator begin() { return iterator(*this);}
-    inline iterator end() { return iterator(*this, samples());}
     inline ItemRef operator[](int s) { return ItemRef(*this, s);}
     inline const ItemRef operator[](int s) const { return ItemRef(*this, s);}
     inline const ItemRef at(int s) const { return ItemRef(*this, s);}
@@ -397,5 +283,3 @@ struct avframe {
 };
 };
 inline void swap(tinyav::avframe &lhs, tinyav::avframe &rhs){ lhs.swap(rhs);}
-inline tinyav::avframe::iterator begin(tinyav::avframe &x) { return x.begin();}
-inline tinyav::avframe::iterator end(tinyav::avframe &x) { return x.end();}
