@@ -23,6 +23,13 @@ namespace tinyav{
             :m_stream_tb{stream_tb}
             ,m_output_tb{1, rate}
         { }
+        void swap(sample_buf &o) noexcept
+        {
+            std::swap(m_buf,o.m_buf);
+            std::swap(m_stream_tb,o.m_stream_tb);
+            std::swap(m_output_tb,o.m_output_tb);
+            std::swap(m_off, o.m_off);
+        }
         avframe &front() { return m_buf.front();}
         avframe &back()  { return m_buf.back();}
         const avframe &front() const { return m_buf.front();}

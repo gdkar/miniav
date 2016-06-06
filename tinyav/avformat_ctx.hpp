@@ -50,7 +50,7 @@ namespace tinyav {
         }
         int open_input(const char *filename, AVInputFormat *fmt = nullptr, AVDictionary **opts = nullptr)
         {
-            return avformat_open_input(&m_d, filename, fmt, opts)
+            return avformat_open_input(&m_d, filename, fmt, opts);
         }
         bool is_input() const
         {

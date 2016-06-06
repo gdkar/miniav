@@ -32,17 +32,17 @@ namespace tinyav{
             }
             avstream(AVFormatContext *f, AVStream *s)
                 :m_d(s)
-                ,m_c(s->codecpar, !!f->oformat)
+                ,m_c(s->codecpar)
                 ,m_f(f) {
-                if(s != f->stream[s->index])
+                if(s != f->streams[s->index])
                     throw std::system_error(EINVAL,std::system_category());
-                m_c.open()
+                m_c.open();
             }
             avstream(AVFormatContext *f, int i)
-            : avstream(f,f->stream[i])
+            : avstream(f,f->streams[i])
             {}
             avstream(AVFormatContext *f, AVCodec *c)
-            : avstream(f, avformat_new_tream(f,c))
+            : avstream(f, avformat_new_stream(f,c))
             { }
             virtual ~avstream()
             {
@@ -58,7 +58,7 @@ namespace tinyav{
             }
             void close()
             {
-                if(m_c.is_output)
+                if(m_c.is_output())
                     flush();
                 m_c.reset();
                 m_f = nullptr;
@@ -71,14 +71,15 @@ namespace tinyav{
             int write(AVFrame *frame = nullptr, bool interleaved = true)
             {
                 auto err = m_c.send_frame(frame);
-{
-                auto err = 0;
                 auto pkt = avpacket();
                 pkt.alloc();
                 while(!(err = m_c.receive_packet(pkt))) {
                     pkt->stream_index = m_d->index;
                     if(m_f) {
-                        m_f->write_frame(pkt,interleaved);
+                        if(interleaved)
+                            av_interleaved_write_frame(m_f,pkt);
+                        else
+                            av_write_frame(m_f,pkt);
                     }
                     pkt.unref();
                 }

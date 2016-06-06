@@ -46,7 +46,7 @@ namespace tinyav {
     inline std::string tinyav_strerror(int err)
     {
         char str[128];
-        va_strerror(err,str,sizeof(str));
+        av_strerror(err,str,sizeof(str));
         return std::string(str);
     }
 };

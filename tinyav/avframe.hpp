@@ -40,14 +40,19 @@ struct avframe {
                 :_ref(ref),_idx(idx){}
             constexpr float &operator *() { return (*_ref)[_idx];}
             constexpr float *operator->() { return &(*_ref)[_idx];}
-            constexpr bool operator ==(const iterator &o)
+            constexpr bool operator !=(const iterator &o) const
             {
-                return o._idx != _idx || o._ref._data != _ref._data || o._ref._sample != _ref._sample;
+                return o._idx != _idx || o._ref->_data != _ref->_data || o._ref->_sample != _ref->_sample;
             }
+            constexpr bool operator ==(const iterator &o) const
+            {
+                return !(*this == o);
+            }
+
             inline iterator&operator++() { ++_idx;return *this;}
             inline iterator&operator--() { --_idx;return *this;}
-            inline iterator&operator++(int) { auto ret = *this;++(*this);return ret;}
-            inline iterator&operator--(int) { auto ret = *this;--(*this);return ret;}
+            inline iterator operator++(int) { auto ret = *this;++(*this);return ret;}
+            inline iterator operator--(int) { auto ret = *this;--(*this);return ret;}
         };
         iterator begin() { return iterator(this,0);}
         iterator end()   { return iterator(this, _planes);}

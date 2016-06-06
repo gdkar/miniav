@@ -14,12 +14,9 @@ struct avcodec_ctx {
     {
         avcodec_copy_context(m_d, o.m_d);
     }
-    avcodec_ctx(AVCodecParameters *params, bool input = true)
+    avcodec_ctx(AVCodecParameters *params)
     {
-        if(output)
-            alloc_output(params);
-        else
-            alloc_input(params);
+        alloc(params);
     }
     avcodec_ctx &operator = (AVCodecContext *f)
     {
@@ -66,7 +63,7 @@ struct avcodec_ctx {
     {
         if(!m_d)
             alloc(codec);
-        return avcodec_open2(m_d,codec,opts);
+        return avcodec_open2(m_d,codec ? codec : m_d->codec,opts);
     }
     void close()
     {
@@ -82,20 +79,16 @@ struct avcodec_ctx {
         if(!m_d)
             m_d = avcodec_alloc_context3(dec);
     }
-    void alloc_input(AVCodecParameters *par)
+    void alloc(AVCodecParameters *par, bool input = true)
     {
         if(m_d)
             close();
         else
-            alloc(avcodec_find_decoder(par->codec_id));
-        avcodec_parameters_to_context(m_d, par);
-    }
-    void alloc_output(AVCodecParameters *par)
-    {
-        if(m_d)
-            close();
+            alloc();
+        if(input)
+            m_d->codec = avcodec_find_decoder(par->codec_id);
         else
-            alloc(avcodec_find_encoder(par->codec_id));
+            m_d->codec = avcodec_find_encoder(par->codec_id);
         avcodec_parameters_to_context(m_d, par);
     }
     void opt_set_int(const char *name, int val){ av_opt_set_int(m_d, name, val,0);}
@@ -105,8 +98,8 @@ struct avcodec_ctx {
     void opt_set(const char *name, AVSampleFormat val) { opt_set_sample_fmt(name,val);}
     void opt_set(const char *name, int64_t val) { opt_set_channel_layout(name, val);}
     bool is_open() const { return avcodec_is_open(m_d);}
-    bool is_input() const { return avcodec_is_decoder(m_d):}
-    bool is_output() const { return avcodec_is_encoder(m_d);}
+    bool is_input() const { return m_d && av_codec_is_decoder(m_d->codec);}
+    bool is_output() const { return m_d && av_codec_is_encoder(m_d->codec);}
     void flush()
     {
         avcodec_flush_buffers(m_d);
