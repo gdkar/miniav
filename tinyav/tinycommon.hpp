@@ -30,6 +30,8 @@ extern "C" {
 #include <algorithm>
 #include <iterator>
 #include <numeric>
+#include <iostream>
+#include <sstream>
 
 #include <vector>
 #include <string>

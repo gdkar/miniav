@@ -78,10 +78,7 @@ namespace tinyav{
                 while(!(err = m_c.receive_packet(pkt))) {
                     pkt->stream_index = m_d->index;
                     if(m_f) {
-                        if(interleaved)
-                            m_f->write_interleaved_frame(pkt);
-                        else
-                            m_f->write_frame(pkt);
+                        m_f->write_frame(pkt,interleaved);
                     }
                     pkt.unref();
                 }
