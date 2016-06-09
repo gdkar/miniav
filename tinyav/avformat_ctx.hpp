@@ -1,9 +1,9 @@
 _Pragma("once")
 
 #include "tinycommon.hpp"
-
+#include "avopt_ptr.hpp"
 namespace tinyav {
-    class avformat_ctx {
+    class avformat_ctx : public avopt_ptr<AVFormatContext, avformat_ctx> {
     public:
         AVFormatContext     *m_d{nullptr};
         avformat_ctx() = default;
@@ -76,13 +76,6 @@ namespace tinyav {
             if(!m_d)
                 m_d = avformat_alloc_context();
         }
-        void opt_set_int(const char *name, int val){ av_opt_set_int(m_d, name, val,0);}
-        void opt_set_sample_fmt(const char *name, AVSampleFormat val){ av_opt_set_sample_fmt(m_d, name, val,0);}
-        void opt_set_channel_layout(const char *name, int64_t val){ av_opt_set_channel_layout(m_d, name, val,0);}
-        void opt_set(const char *name, int val) { opt_set_int(name,val);}
-        void opt_set(const char *name, AVSampleFormat val) { opt_set_sample_fmt(name,val);}
-        void opt_set(const char *name, int64_t val) { opt_set_channel_layout(name, val);}
-
         int read_frame(AVPacket *pkt) { return av_read_frame(m_d, pkt);}
         int seek_frame(int sid, int64_t ts, int flags = 0)
         {

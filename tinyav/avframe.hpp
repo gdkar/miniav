@@ -5,7 +5,8 @@ _Pragma("once")
 namespace tinyav{
 struct defer_frame_t { };
 constexpr const defer_frame_t defer_frame{};
-struct avframe {
+class avframe {
+public:
     struct ItemRef {
         constexpr ItemRef() = default;
         constexpr ItemRef(ItemRef&&) = default;
