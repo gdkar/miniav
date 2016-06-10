@@ -1,9 +1,11 @@
 _Pragma("once")
 
 #include "tinycommon.hpp"
-
+#include "avobject.hpp"
 namespace tinyav {
-    struct swr_ctx {
+    class swr_ctx : public avobject<swr_ctx, SwrContext>{
+
+    public:
         SwrContext     *m_d{nullptr};
         swr_ctx() = default;
         swr_ctx(SwrContext *f)
@@ -41,12 +43,6 @@ namespace tinyav {
         operator bool() const { return !!m_d;}
         operator SwrContext *() const { return m_d;}
         void alloc() { if(!m_d) m_d = swr_alloc();}
-        void opt_set_int(const char *name, int val){ av_opt_set_int(m_d, name, val,0);}
-        void opt_set_sample_fmt(const char *name, AVSampleFormat val){ av_opt_set_sample_fmt(m_d, name, val,0);}
-        void opt_set_channel_layout(const char *name, int64_t val){ av_opt_set_channel_layout(m_d, name, val,0);}
-        void opt_set(const char *name, int val) { opt_set_int(name,val);}
-        void opt_set(const char *name, AVSampleFormat val) { opt_set_sample_fmt(name,val);}
-        void opt_set(const char *name, int64_t val) { opt_set_channel_layout(name, val);}
         int  drop_output(int samples) { return swr_drop_output(m_d, samples);}
         int inject_silence(int samples) { return swr_inject_silence(m_d,samples);};
         int64_t next_pts(int64_t pts) { return swr_next_pts(m_d,pts);}

@@ -1,9 +1,9 @@
 _Pragma("once")
 
 #include "tinycommon.hpp"
-#include "avopt_ptr.hpp"
+#include "avobject.hpp"
 namespace tinyav {
-    class avformat_ctx : public avopt_ptr<AVFormatContext, avformat_ctx> {
+    class avformat_ctx : public avobject<avformat_ctx, AVFormatContext> {
     public:
         AVFormatContext     *m_d{nullptr};
         avformat_ctx() = default;

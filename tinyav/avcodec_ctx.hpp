@@ -1,8 +1,10 @@
 _Pragma("once")
 
 #include "tinycommon.hpp"
+#include "avobject.hpp"
 namespace tinyav {
-struct avcodec_ctx {
+class avcodec_ctx : public avobject<avcodec_ctx, AVCodecContext> {
+public:
     AVCodecContext     *m_d{nullptr};
     avcodec_ctx() = default;
     avcodec_ctx(AVCodecContext *f)
@@ -91,12 +93,6 @@ struct avcodec_ctx {
             m_d->codec = avcodec_find_encoder(par->codec_id);
         avcodec_parameters_to_context(m_d, par);
     }
-    void opt_set_int(const char *name, int val){ av_opt_set_int(m_d, name, val,0);}
-    void opt_set_sample_fmt(const char *name, AVSampleFormat val){ av_opt_set_sample_fmt(m_d, name, val,0);}
-    void opt_set_channel_layout(const char *name, int64_t val){ av_opt_set_channel_layout(m_d, name, val,0);}
-    void opt_set(const char *name, int val) { opt_set_int(name,val);}
-    void opt_set(const char *name, AVSampleFormat val) { opt_set_sample_fmt(name,val);}
-    void opt_set(const char *name, int64_t val) { opt_set_channel_layout(name, val);}
     bool is_open() const { return avcodec_is_open(m_d);}
     bool is_input() const { return m_d && av_codec_is_decoder(m_d->codec);}
     bool is_output() const { return m_d && av_codec_is_encoder(m_d->codec);}
