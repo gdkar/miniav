@@ -71,8 +71,17 @@ public:
         return *this;
     }
     void swap(avframe &o) noexcept { std::swap(m_d,o.m_d);}
-    void reset(AVFrame *f = nullptr) { av_frame_free(&m_d); m_d = f;}
-    AVFrame *release() { auto ret = static_cast<AVFrame*>(nullptr);std::swap(m_d,ret);return ret;}
+    void reset(AVFrame *f = nullptr)
+    {
+        if(m_d != f)
+            av_frame_free(&m_d);
+        m_d = f;
+    }
+    AVFrame *release() {
+        auto ret = static_cast<AVFrame*>(nullptr);
+        std::swap(m_d,ret);
+        return ret;
+    }
     AVFrame *get() const { return m_d;}
    ~avframe() { reset();}
     AVFrame *operator ->() { return m_d; }
@@ -258,6 +267,7 @@ public:
     }
     void realloc(int nb_samples)
     {
+        make_writable();
         auto new_size = std::max(nb_samples * stride(), 0);
         for(auto i = 0, p = planes(); i < p; i++ ) {
             auto &bufref = (i<AV_NUM_DATA_POINTERS)

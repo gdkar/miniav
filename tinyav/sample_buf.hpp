@@ -57,37 +57,49 @@ namespace tinyav{
         inline bool empty() const { return m_buf.empty();}
         inline size_t size() const { return m_buf.size();}
         void push_back(avframe && ptr) {
-            auto _end = empty() ? ptr.pts() : pts_end();
-            m_buf.push_back(std::forward<avframe&&>(ptr));
-            m_buf.back()->pts = _end;
+            if(ptr) {
+                auto _end = empty() ? ptr.pts() : pts_end();
+                m_buf.push_back(std::forward<avframe&&>(ptr));
+                m_buf.back()->pts = _end;
+            }
         }
         void push_back(const avframe & ptr) {
-            auto _end = empty() ? ptr.pts() :back().pts() + sample_to_pts(back().samples());;
-            m_buf.push_back(ptr);
-            back()->pts = _end;
+            if(ptr) {
+                auto _end = empty() ? ptr.pts() :back().pts() + sample_to_pts(back().samples());;
+                m_buf.push_back(ptr);
+                back()->pts = _end;
+            }
         }
         void emplace_back(AVFrame *frm) {
-            auto _end = empty() ? frm->pts :back().pts() + sample_to_pts(back().samples());;
-            m_buf.emplace_back(frm);
-            m_buf.back()->pts = _end;
+            if(frm) {
+                auto _end = empty() ? frm->pts :back().pts() + sample_to_pts(back().samples());;
+                m_buf.emplace_back(frm);
+                m_buf.back()->pts = _end;
+            }
         }
         void push_front(avframe && ptr) {
-            auto _begin = empty() ? ptr.pts() : pts_begin() - sample_to_pts(ptr.samples());;
-            m_buf.push_front(std::forward<avframe&&>(ptr));
-            m_buf.front()->pts = _begin;
-            m_off -= m_buf.front().samples();
+            if(ptr) {
+                auto _begin = empty() ? ptr.pts() : pts_begin() - sample_to_pts(ptr.samples());;
+                m_buf.push_front(std::forward<avframe&&>(ptr));
+                m_buf.front()->pts = _begin;
+                m_off -= m_buf.front().samples();
+            }
         }
         void push_front(const avframe & ptr) {
-            auto _begin = empty() ? ptr.pts() : pts_begin() - sample_to_pts(ptr.samples());;
-            m_buf.push_front(ptr);
-            m_buf.front()->pts = _begin;
-            m_off -= m_buf.front().samples();
+            if(ptr) {
+                auto _begin = empty() ? ptr.pts() : pts_begin() - sample_to_pts(ptr.samples());;
+                m_buf.push_front(ptr);
+                m_buf.front()->pts = _begin;
+                m_off -= m_buf.front().samples();
+            }
         }
         void emplace_front(AVFrame * frm) {
-            auto _begin = empty() ? frm->pts : front().pts() - sample_to_pts(frm->nb_samples);
-            m_buf.emplace_front(frm);
-            front()->pts = _begin;
-            m_off -= m_buf.front().samples();
+            if(frm) {
+                auto _begin = empty() ? frm->pts : front().pts() - sample_to_pts(frm->nb_samples);
+                m_buf.emplace_front(frm);
+                front()->pts = _begin;
+                m_off -= m_buf.front().samples();
+            }
         }
         void pop_front()
         {
