@@ -8,3 +8,5 @@ _Pragma("once")
 #include "sample_buf.hpp"
 #include "swr_ctx.hpp"
 #include "avstream.hpp"
+#include "tinytraits.hpp"
+#include "tinyiter.hpp"
