@@ -54,3 +54,4 @@ namespace tinyav {
         return std::string(str);
     }
 };
+#include "tinyiter.hpp"
