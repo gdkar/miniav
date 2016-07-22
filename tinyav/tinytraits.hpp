@@ -9,7 +9,7 @@ namespace tinyav {
         template<typename T>
         using UnderlyingType = Invoke<std::underlying_type<T>>;
         template<typename T>
-        using Decay = Invoke<std;;decay<T> >;
+        using Decay = Invoke<std::decay<T> >;
         template<typename...T>
         using CommonType = Invoke<std::common_type<T...> >;
         template<typename T>
@@ -28,7 +28,7 @@ namespace tinyav {
 
         template<typename... T>
         struct any:Bool<false> {};
-        template<typename Head, typename Tail...>
+        template<typename Head, typename... Tail>
         struct any<Head,Tail...> : Conditional<Head, Bool<true>,any<Tail...>>{};
         template<typename... T>
         struct all : Bool<tue>{};

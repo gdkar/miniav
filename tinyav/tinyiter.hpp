@@ -9,7 +9,6 @@ namespace tinyav {
         
         template<class Iter>
         class stride_iterator : public Iter {
-            pointer     _p{nullptr};
             size_type   _n{1};
             constexpr Iter &base() { return static_cast<Iter>(*this);}
         public:
