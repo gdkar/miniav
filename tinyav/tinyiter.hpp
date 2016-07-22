@@ -4,21 +4,42 @@ _Pragma("once")
 #include "tinycommon.hpp"
 #include "tinytraits.hpp"
 namespace tinyav {
-    namespace iter {
+    namespace tiny_iter {
         using namespace tiny_traits;
         
         template<class Iter>
-        class stride_iterator : public Iter {
-            size_type   _n{1};
-            constexpr Iter &base() { return static_cast<Iter>(*this);}
+        class stride_iterator : public std::iterator<
+            typename std::iterator_traits<Iter>::iterator_category,
+            typename std::iterator_traits<Iter>::value_type,
+            typename std::iterator_traits<Iter>::difference_type,
+            typename std::iterator_traits<Iter>::pointer,
+            typename std::iterator_traits<Iter>::reference > {
+
         public:
+            using base_type = std::iterator<
+            typename std::iterator_traits<Iter>::iterator_category,
+            typename std::iterator_traits<Iter>::value_type,
+            typename std::iterator_traits<Iter>::difference_type,
+            typename std::iterator_traits<Iter>::pointer,
+            typename std::iterator_traits<Iter>::reference >;
+
+            using difference_type = typename base_type::difference_type;
+            using value_type = typename base_type::value_type;
+            using pointer = typename base_type::pointer;
+            using reference = typename base_type::reference;
+
+            Iter              _p{};
+            difference_type   _n{1};
+            constexpr Iter &base() { return _p;}
+
+
             constexpr stride_iterator() noexcept = default;
             constexpr stride_iterator(Iter o)
-            : Iter(o) { }
-            constexpr stride_iterator(Iter o, size_type n )
-            : Iter(o), _n(n) { }
+            : _p(o) { }
+            constexpr stride_iterator(Iter o, difference_type n )
+            : _p(o), _n(n) { }
             constexpr stride_iterator(const stride_iterator &) = default;
-            stride_iterator &operator =(const stride_poitner &) = default;
+            stride_iterator &operator =(const stride_iterator &) = default;
             constexpr stride_iterator operator + (difference_type _d)
             {
                 return stride_iterator(base() + (_n * _d), _n);
@@ -31,8 +52,9 @@ namespace tinyav {
             {
                 return std::distance(base(),o.base())/_n;
             }
-            using Iter::operator *;
-            using Iter::operator ->;
+            constexpr operator Iter() const { return _p;}
+            reference operator *() { return *_p;}
+            Iter operator ->() { return _p;}
             constexpr stride_iterator& operator += ( difference_type _d)
             {
                 std::advance(base(), _d * _n);return *this;
@@ -53,7 +75,7 @@ namespace tinyav {
             {
                 return base()[_n*_d];
             }
-            constexpr const_reference operator[](difference_type _d) const
+            constexpr reference operator[](difference_type _d) const
             {
                 return base()[_n*_d];
             }
@@ -102,11 +124,10 @@ namespace tinyav {
             Iter    _start{};
             Iter    _stop {};
         public:
-            using value_type = Iter::value_type;
-            using distance_type = Iter::distance_type;
-            using size_type     = Iter::size_type;
-            using reference     = Iter::reference;
-            using const_reference = Iter::const_reference;
+            using value_type = typename  std::iterator_traits<Iter>::value_type;
+            using difference_type = typename std::iterator_traits<Iter>::difference_type;
+            using size_type     = size_t;
+            using reference     = typename std::iterator_traits<Iter>::reference;
             constexpr iter_range() = default;
             constexpr iter_range(const iter_range &) = default;
             constexpr iter_range(iter_range &&) noexcept = default;
@@ -126,7 +147,7 @@ namespace tinyav {
             constexpr size_type size() const { return std::distance(_start,_stop);}
         };
         template<class Iter>
-        constexpr iter_range<Iter> make_range(Iter iter, Iter::size_type length)
+        constexpr iter_range<Iter> make_range(Iter iter, typename std::iterator_traits<Iter>::difference_type length)
         {
             return iter_range<Iter>(iter,length);
         }
@@ -136,7 +157,7 @@ namespace tinyav {
             return iter_range<Iter>(iter,iend);
         }
         template<class Iter>
-        constexpr stride_iterator<Iter> make_strided(Iter it, Iter::size_type stride)
+        constexpr stride_iterator<Iter> make_strided(Iter it, typename std::iterator_traits<Iter>::difference_type stride)
         {
             return stride_iterator<Iter>(it, stride);
         }

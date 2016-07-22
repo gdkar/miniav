@@ -6,12 +6,12 @@ namespace tinyav{
     class avframe {
         AVFrame     *m_d{nullptr};
     public:
-        using value_type      = iter_range<stride_iterator<float *> >;
+        using value_type      = typename tiny_iter::iter_range<tiny_iter::stride_iterator<float *> >;
         using size_type       = uint64_t;
         using difference_type = int64_t;
         using time_type       = int64_t;
-        using reference       = iter_range<stride_iterator<float *> >;
-        using const_reference = iter_range<stride_iterator<const float *> >;
+        using reference       = typename tiny_iter::iter_range<tiny_iter::stride_iterator<float *> >;
+        using const_reference = typename tiny_iter::iter_range<tiny_iter::stride_iterator<const float *> >;
         using pointer         = AVFrame *;
         using const_pointer   = const AVFrame *;
         avframe()
@@ -21,10 +21,10 @@ namespace tinyav{
         avframe(avframe &&o) noexcept
             : m_d(o.release()) { }
         avframe(const avframe &o)
-        : m_d(av_frame_clone(o)) { }
+        : m_d(av_frame_clone(o.m_d)) { }
         avframe &operator =(avframe &&o) noexcept
         {
-            swap(*this,o);
+            swap(o);
             return *this;
         }
         avframe &operator = (const avframe &o)
@@ -84,32 +84,45 @@ namespace tinyav{
         time_type pts() const { return m_d->pts ;}
         int     copy(AVFrame *o) { return av_frame_copy(m_d,o);}
         int     copy_props(AVFrame *o) { return av_frame_copy_props(m_d,o);}
-        float **data() const { return reinterpret_cast<float**>(m_d->extended_data);}
+        float **data() { return reinterpret_cast<float**>(m_d->extended_data);}
+        float const **data() const { return reinterpret_cast<const float**>(const_cast<const uint8_t **>(m_d->extended_data));}
         reference data(int i)
         {
-            return make_range(make_strided((planar() ? data()[i] : (data()[0] + i)), word_stride()),
-                    channels());
+            using namespace tiny_iter;
+            auto start = make_strided((planar() ? data()[i] : (data()[0] + i)), word_stride());
+            return make_range(start, std::next(start,channels()));
         }
         const_reference data(int i) const
         {
-            return make_range(make_strided((planar() ? data()[i] : (data()[0] + i)), word_stride()),
-                    channels());
+            using namespace tiny_iter;
+            auto start = make_strided((planar() ? data()[i] : (data()[0] + i)), word_stride());
+            return make_range(start, std::next(start,channels()));
         }
         float  &data(int c,int s)
         {
             return planar() ? data()[0][ c + s * channels()] : data()[c][s];
         }
-        const float  &data(int c,int s) const
+        float  data(int c,int s) const
         {
             return planar() ? data()[0][ c + s * channels()] : data()[c][s];
         }
-        reference operator[](std::pair<int64_t,int>) { 
-            return make_range(make_strided((planar() ? data()[i] : (data()[0] + i)), word_stride()),channels());
+        reference operator[](int i)
+        {
+            return data( i);
         }
-        const_reference operator[](std::pair<int64_t,int>) const { 
-            return make_range(make_strided((planar() ? data()[i] : (data()[0] + i)), word_stride()),channels());
+        const_reference operator[](int i) const
+        {
+            return data( i);
         }
-        const_reference at(int s) const { return return (*this)[s];}
+        float &operator[](const std::pair<int,int> &idx)
+        {
+            return data(idx.first,idx.second);
+        }
+        float operator[](const std::pair<int,int>&idx) const
+        {
+            return data(idx.first,idx.second);
+        }
+        const_reference at(int s) const { return (*this)[s];}
 
         int     copy_to(AVFrame *dst, int dst_offset, int src_offset, int nb_samples)
         {

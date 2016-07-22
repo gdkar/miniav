@@ -31,7 +31,7 @@ namespace tinyav {
         template<typename Head, typename... Tail>
         struct any<Head,Tail...> : Conditional<Head, Bool<true>,any<Tail...>>{};
         template<typename... T>
-        struct all : Bool<tue>{};
+        struct all : Bool<true>{};
         template<typename Head, typename... Tail>
         struct all<Head,Tail...> : Conditional<Head, all<Tail...>,Bool<false> > {};
         
